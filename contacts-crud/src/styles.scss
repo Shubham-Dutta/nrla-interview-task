@@ -5,6 +5,16 @@
 html, body { height: 100%; }
 body { margin: 0; }
 
+
 .brand-color{
-    background-color: #f37322;
+    background-color: #f66408;
+    &:hover{
+        background-color: #ea6a1b !important;
+    }
+}
+.text-brand{
+    color:var(--primary-color);
+}
+.border-brand{
+    border: 1px solid var(--primary-color) !important;
 }
