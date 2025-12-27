@@ -1,0 +1,149 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>Contacts</h1>
+    </div>
+    <div class="actions">
+      <button pButton type="button" label="Seed DB" icon="pi pi-database" class="p-button-secondary"
+        (click)="onSeed()"></button>
+
+      <!-- Open create contact dialog -->
+      <button pButton type="button" label="New Contact" icon="pi pi-plus" (click)="openCreate()"></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-top">
+      <!-- Search input (filters contacts client-side) -->
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" placeholder="Search..." [ngModel]="searchText()"
+          (ngModelChange)="searchText.set($event)" />
+
+      </span>
+
+      <!-- Reload contacts from API -->
+      <button pButton type="button" label="Refresh" icon="pi pi-refresh" class="p-button-text"
+        (click)="load()"></button>
+    </div>
+
+    <!-- Loading icon -->
+    <div class="loading" *ngIf="loading()">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <!-- Contacts table-->
+    <p-table *ngIf="!loading()" [value]="filteredContacts()" [paginator]="true" [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]" [responsiveLayout]="'scroll'">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Company</th>
+          <th style="width: 160px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-c>
+        <tr>
+          <td class="name">
+            <div class="avatar" *ngIf="c.image; else initials">
+              <img [src]="c.image" alt="profile" />
+            </div>
+
+            <ng-template #initials>
+              <div class="avatar initials">
+                {{ (c.firstName?.[0] || '?') + (c.lastName?.[0] || '') }}
+              </div>
+            </ng-template>
+
+            <div class="name-text">
+              <div class="title">{{ c.firstName }} {{ c.lastName }}</div>
+            </div>
+          </td>
+
+          <td>{{ c.email || '-' }}</td>
+          <td>{{ c.phone || '-' }}</td>
+          <td>{{ c.company || '-' }}</td>
+
+          <td class="row-actions">
+            <!-- Edit contact -->
+            <button pButton type="button" icon="pi pi-pencil" class="p-button-text" (click)="openEdit(c)"></button>
+            <!-- Delete contact (opens confirm dialog) -->
+            <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-danger"
+              (click)="confirmDelete(c)"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5">No contacts found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Create/Edit dialog -->
+  <p-dialog [(visible)]="dialogOpen" [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '520px' }"
+    [header]="dialogTitle()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field mb-3">
+        <label>First name</label>
+        <input pInputText formControlName="firstName" />
+        <small class="error" *ngIf="form.controls.firstName.touched && form.controls.firstName.invalid">
+          <span *ngIf="form.controls.firstName.errors?.['required']">First name is required</span>
+          <span *ngIf="form.controls.firstName.errors?.['minlength']">Enter at least 2 characters</span>
+          <span *ngIf="form.controls.firstName.errors?.['maxlength']">Max 40 characters</span>
+          <span *ngIf="form.controls.firstName.errors?.['pattern']">Only letters and spaces</span>
+        </small>
+      </div>
+
+      <div class="field mb-3">
+        <label>Last name</label>
+        <input pInputText formControlName="lastName" />
+        <small class="error" *ngIf="form.controls.lastName.touched && form.controls.lastName.invalid">
+          <span *ngIf="form.controls.lastName.errors?.['required']">Last name is required</span>
+          <span *ngIf="form.controls.lastName.errors?.['minlength']">Enter at least 2 characters</span>
+          <span *ngIf="form.controls.lastName.errors?.['maxlength']">Max 40 characters</span>
+          <span *ngIf="form.controls.lastName.errors?.['pattern']">Only letters and spaces</span>
+        </small>
+      </div>
+
+      <div class="field mb-3">
+        <label>Email</label>
+        <input pInputText formControlName="email" />
+        <small class="error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+          Enter a valid email
+        </small>
+      </div>
+
+      <div class="field mb-3">
+        <label>Phone</label>
+        <input pInputText formControlName="phone" />
+        <small class="error" *ngIf="form.controls.phone.touched && form.controls.phone.invalid">
+          <span *ngIf="form.controls.phone.errors?.['pattern']">Phone can contain digits, spaces, +, -, (), x</span>
+          <span *ngIf="form.controls.phone.errors?.['phoneMinDigits']">Enter at least 7 digits</span>
+        </small>
+      </div>
+
+      <div class="field mb-3">
+        <label>Company</label>
+        <input pInputText formControlName="company" />
+        <small class="error" *ngIf="form.controls.company.touched && form.controls.company.invalid">
+          Max 60 characters
+        </small>
+      </div>
+
+      <!-- Dialog actions -->
+      <div class="dialog-actions">
+        <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeDialog()"></button>
+        <button pButton type="submit" [label]="submitLabel()" [disabled]="form.invalid || saving()"></button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

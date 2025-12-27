@@ -1,1 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
+@import "primeng/resources/themes/aura-light-blue/theme.css";
+@import "primeng/resources/primeng.css";
+@import "primeicons/primeicons.css";
+
+html, body { height: 100%; }
+body { margin: 0; }
+
+.brand-color{
+    background-color: #f37322;
+}
